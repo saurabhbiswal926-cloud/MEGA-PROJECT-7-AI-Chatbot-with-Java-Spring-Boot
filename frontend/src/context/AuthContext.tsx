@@ -13,8 +13,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-    const [username, setUsername] = useState<string | null>(localStorage.getItem('username'));
+    const [token, setToken] = useState<string | null>(sessionStorage.getItem('token'));
+    const [username, setUsername] = useState<string | null>(sessionStorage.getItem('username'));
 
     const login = async (u: string, p: string) => {
         const response = await api.post('/auth/login', { username: u, password: p });
@@ -23,8 +23,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // If backend just returns string token, we might need to adjust.
         // Assuming Standard JWT response.
 
-        localStorage.setItem('token', newToken);
-        localStorage.setItem('username', user);
+        sessionStorage.setItem('token', newToken);
+        sessionStorage.setItem('username', user);
         setToken(newToken);
         setUsername(user);
     };
@@ -37,8 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('username');
         setToken(null);
         setUsername(null);
     };

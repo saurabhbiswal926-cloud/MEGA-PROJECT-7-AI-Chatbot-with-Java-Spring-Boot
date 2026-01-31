@@ -11,7 +11,7 @@ const ThemeToggle: React.FC = () => {
             theme,
             resolvedTheme,
             htmlClass: document.documentElement.className,
-            localStorage: localStorage.getItem('theme')
+            localStorage: sessionStorage.getItem('theme')
         });
     }, [theme, resolvedTheme]);
 
@@ -32,8 +32,8 @@ const ThemeToggle: React.FC = () => {
         <div className="flex items-center gap-2">
             {/* Current theme indicator */}
             <div className={`text-xs px-2 py-1 rounded font-medium ${resolvedTheme === 'dark'
-                    ? 'bg-gray-800 text-gray-300'
-                    : 'bg-yellow-100 text-yellow-800'
+                ? 'bg-gray-800 text-gray-300'
+                : 'bg-yellow-100 text-yellow-800'
                 }`}>
                 {resolvedTheme === 'dark' ? 'DARK' : 'LIGHT'}
             </div>

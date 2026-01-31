@@ -15,7 +15,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // 1. Initial State
     const [theme, setTheme] = useState<Theme>(() => {
         if (typeof window !== 'undefined') {
-            return (localStorage.getItem('theme') as Theme) || 'system';
+            return (sessionStorage.getItem('theme') as Theme) || 'system';
         }
         return 'system';
     });
@@ -35,7 +35,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
 
         updateResolvedTheme();
-        localStorage.setItem('theme', theme);
+        sessionStorage.setItem('theme', theme);
 
         if (theme === 'system') {
             mediaQuery.addEventListener('change', updateResolvedTheme);

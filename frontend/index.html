@@ -14,7 +14,7 @@
 
     // Prevent flash of wrong theme
     (function () {
-      const savedTheme = localStorage.getItem('theme');
+      const savedTheme = sessionStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
       // If saved theme is dark, or no saved theme but system prefers dark
