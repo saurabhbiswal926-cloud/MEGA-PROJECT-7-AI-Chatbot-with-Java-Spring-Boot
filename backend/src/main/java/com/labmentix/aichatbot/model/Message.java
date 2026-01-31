@@ -34,4 +34,7 @@ public class Message {
 
     @Enumerated(EnumType.STRING)
     private MessageType type; // USER, AI
+
+    @Enumerated(EnumType.STRING)
+    private MessageStatus status; // SENT, PROCESSING, RECEIVED, ERROR
 }

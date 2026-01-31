@@ -8,12 +8,14 @@ export interface ChatMessage {
     content: string;
     sender: string;
     conversationId?: number;
-    type: 'CHAT' | 'JOIN' | 'LEAVE' | 'CONVERSATION_UPDATE';
+    type: 'CHAT' | 'JOIN' | 'LEAVE' | 'CONVERSATION_UPDATE' | 'TYPING' | 'ERROR';
+    status?: 'SENT' | 'PROCESSING' | 'RECEIVED' | 'ERROR';
 }
 
 export const useChat = (conversationId?: number, onConversationUpdate?: () => void) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isConnected, setIsConnected] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
     const stompClientRef = useRef<Client | null>(null);
     const { username } = useAuth();
 
@@ -26,7 +28,8 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
                         content: m.content,
                         sender: m.sender ? m.sender.username : 'AI Assistant',
                         type: 'CHAT',
-                        conversationId: conversationId
+                        conversationId: conversationId,
+                        status: m.status || 'SENT'
                     }));
                     setMessages(history);
                 })
@@ -55,19 +58,27 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
                         return;
                     }
 
-                    // 🛡️ Safety & Cleanliness
-                    // 1. Only show CHAT messages (ignore JOIN/LEAVE)
-                    // 2. Ignore messages with no content
-                    if (receivedMessage.type !== 'CHAT' || !receivedMessage.content) {
+                    if (receivedMessage.type === 'TYPING') {
+                        if (receivedMessage.conversationId === conversationId) {
+                            setIsTyping(true);
+                        }
                         return;
                     }
 
-                    // 3. Filter by conversationId
-                    if (receivedMessage.conversationId && receivedMessage.conversationId !== conversationId) {
-                        return;
-                    }
+                    if (receivedMessage.type === 'CHAT' || receivedMessage.type === 'ERROR') {
+                        // 🛡️ Safety & Cleanliness
+                        // 1. Filter by conversationId
+                        if (receivedMessage.conversationId && receivedMessage.conversationId !== conversationId) {
+                            return;
+                        }
 
-                    setMessages((prev) => [...prev, receivedMessage]);
+                        // Stop typing indicator when a message arrives
+                        setIsTyping(false);
+
+                        if (receivedMessage.content) {
+                            setMessages((prev) => [...prev, receivedMessage]);
+                        }
+                    }
                 });
 
                 client.publish({
@@ -77,6 +88,7 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
             },
             onDisconnect: () => {
                 setIsConnected(false);
+                setIsTyping(false);
             },
         });
 
@@ -95,7 +107,13 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
                 content: content,
                 conversationId: conversationId,
                 type: 'CHAT',
+                status: 'SENT'
             };
+
+            // Add message locally for optimistic UI
+            // But be careful because we'll get it back over WebSocket
+            // However, the current logic relies on WebSocket for receiving.
+
             try {
                 stompClientRef.current.publish({
                     destination: '/app/chat.sendMessage',
@@ -110,5 +128,5 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
         }
     }, [isConnected, username, conversationId]);
 
-    return { messages, sendMessage, isConnected };
+    return { messages, sendMessage, isConnected, isTyping };
 };

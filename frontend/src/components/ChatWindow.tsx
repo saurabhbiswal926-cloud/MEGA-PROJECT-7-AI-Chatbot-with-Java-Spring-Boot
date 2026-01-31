@@ -11,7 +11,7 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId, onConversationUpdate }) => {
     const [input, setInput] = useState('');
-    const { messages, sendMessage, isConnected } = useChat(conversationId, onConversationUpdate);
+    const { messages, sendMessage, isConnected, isTyping } = useChat(conversationId, onConversationUpdate);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { username } = useAuth();
@@ -94,9 +94,27 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId, onConversationU
                             content={msg.content}
                             sender={msg.sender}
                             isUser={msg.sender === username}
+                            status={msg.status}
                             onEdit={handleEdit}
                         />
                     ))
+                )}
+
+                {isTyping && (
+                    <div className="flex justify-start animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div className="flex gap-4 max-w-[85%] group">
+                            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs flex-shrink-0 shadow-lg shadow-blue-500/20">
+                                🤖
+                            </div>
+                            <div className="bg-gray-100 dark:bg-[#2f2f2f] text-gray-700 dark:text-gray-300 rounded-2xl rounded-tl-none px-4 py-3 shadow-md border border-gray-200 dark:border-gray-700">
+                                <div className="flex gap-1">
+                                    <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                    <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                    <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
                 <div ref={messagesEndRef} />
             </div>

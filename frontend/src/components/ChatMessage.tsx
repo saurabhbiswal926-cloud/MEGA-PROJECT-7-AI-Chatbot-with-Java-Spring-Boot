@@ -8,10 +8,11 @@ interface MessageProps {
     content: string;
     isUser: boolean;
     timestamp?: string;
+    status?: 'SENT' | 'PROCESSING' | 'RECEIVED' | 'ERROR';
     onEdit?: (content: string) => void;
 }
 
-const ChatMessage: React.FC<MessageProps> = ({ sender, content, isUser, timestamp, onEdit }) => {
+const ChatMessage: React.FC<MessageProps> = ({ sender, content, isUser, timestamp, status, onEdit }) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -68,12 +69,36 @@ const ChatMessage: React.FC<MessageProps> = ({ sender, content, isUser, timestam
                             )}
                         </div>
 
-                        {/* Timestamp */}
-                        {timestamp && (
-                            <div className={`text-[10px] opacity-50 mt-1 ${isUser ? 'text-right' : 'text-left'}`}>
-                                {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                        )}
+                        {/* Timestamp & Status */}
+                        <div className={`flex items-center gap-1.5 mt-1 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                            {timestamp && (
+                                <span className="text-[10px] opacity-50">
+                                    {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                            {isUser && status && (
+                                <span className="flex items-center">
+                                    {status === 'SENT' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                    {status === 'RECEIVED' && (
+                                        <div className="flex -space-x-1.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                    )}
+                                    {status === 'ERROR' && (
+                                        <span className="text-red-300 text-[10px] font-bold">!</span>
+                                    )}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

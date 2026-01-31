@@ -19,6 +19,8 @@ public class ChatMessage {
         CHAT,
         JOIN,
         LEAVE,
-        CONVERSATION_UPDATE
+        CONVERSATION_UPDATE,
+        TYPING,
+        ERROR
     }
 }

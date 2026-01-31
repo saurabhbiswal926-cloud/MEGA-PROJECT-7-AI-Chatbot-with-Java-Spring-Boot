@@ -3,6 +3,7 @@ package com.labmentix.aichatbot.service;
 import com.labmentix.aichatbot.dto.ChatMessage;
 import com.labmentix.aichatbot.model.Conversation;
 import com.labmentix.aichatbot.model.Message;
+import com.labmentix.aichatbot.model.MessageStatus;
 import com.labmentix.aichatbot.model.MessageType;
 import com.labmentix.aichatbot.model.User;
 import com.labmentix.aichatbot.repository.ConversationRepository;
@@ -60,6 +61,7 @@ public class ChatService {
                                 .conversation(conversation)
                                 .timestamp(LocalDateTime.now())
                                 .type(MessageType.USER)
+                                .status(MessageStatus.SENT)
                                 .build();
 
                 messageRepository.save(userMsg);
@@ -84,28 +86,49 @@ public class ChatService {
                         });
                 }
 
-                // 2. Trigger AI Response
+                // 2. Notify Frontend: AI is Typing
+                ChatMessage typingMsg = ChatMessage.builder()
+                                .sender("AI Assistant")
+                                .type(ChatMessage.MessageType.TYPING)
+                                .conversationId(conversation.getId())
+                                .content("Thinking...")
+                                .build();
+                messagingTemplate.convertAndSend("/topic/public", typingMsg);
+
+                // 3. Trigger AI Response
                 aiService.generateResponse(chatMessage.getContent())
                                 .thenAccept(responseContent -> {
-                                        // 3. Save AI Message
+                                        // 4. Save AI Message
                                         Message aiMsg = Message.builder()
                                                         .content(responseContent)
                                                         .sender(null) // System/AI
                                                         .conversation(conversation)
                                                         .timestamp(LocalDateTime.now())
                                                         .type(MessageType.AI)
+                                                        .status(MessageStatus.RECEIVED)
                                                         .build();
 
                                         messageRepository.save(aiMsg);
 
-                                        // 4. Broadcast AI Message
+                                        // 5. Broadcast AI Message
                                         ChatMessage responseDto = ChatMessage.builder()
                                                         .content(responseContent)
                                                         .sender("AI Assistant")
                                                         .type(ChatMessage.MessageType.CHAT)
+                                                        .conversationId(conversation.getId())
                                                         .build();
 
                                         messagingTemplate.convertAndSend("/topic/public", responseDto);
+                                })
+                                .exceptionally(ex -> {
+                                        ChatMessage errorMsg = ChatMessage.builder()
+                                                        .sender("AI Assistant")
+                                                        .type(ChatMessage.MessageType.ERROR)
+                                                        .content("Sorry, I encountered an error.")
+                                                        .conversationId(conversation.getId())
+                                                        .build();
+                                        messagingTemplate.convertAndSend("/topic/public", errorMsg);
+                                        return null;
                                 });
         }
 }
