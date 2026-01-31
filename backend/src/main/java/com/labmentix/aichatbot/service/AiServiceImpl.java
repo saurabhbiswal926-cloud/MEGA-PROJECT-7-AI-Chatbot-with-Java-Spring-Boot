@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.labmentix.aichatbot.dto.OpenAIRequest;
 import com.labmentix.aichatbot.dto.OpenAIResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class AiServiceImpl implements AiService {
     @Value("${groq.api.url}")
     private String apiUrl;
 
+    @Autowired
+    private KnowledgeBaseService knowledgeBaseService;
+
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
@@ -37,11 +41,21 @@ public class AiServiceImpl implements AiService {
     @Async
     public CompletableFuture<String> generateResponse(String userMessage) {
         try {
-            log.info("Sending request to Groq: {}", userMessage);
+            log.info("Searching context for message: {}", userMessage);
+            String context = knowledgeBaseService.searchContext(userMessage);
+
+            String enhancedPrompt = userMessage;
+            if (context != null && !context.isEmpty()) {
+                enhancedPrompt = "Use the following context to answer the user's question. If the answer is not in the context, use your general knowledge but mention that it's not in the documents.\n\n"
+                        + "CONTEXT:\n" + context + "\n\n"
+                        + "USER QUESTION: " + userMessage;
+            }
+
+            log.info("Sending request to Groq with context attached");
 
             // Create Groq Request (OpenAI Compatible)
             // Using llama-3.3-70b-versatile for high performance
-            OpenAIRequest.Message message = new OpenAIRequest.Message("user", userMessage);
+            OpenAIRequest.Message message = new OpenAIRequest.Message("user", enhancedPrompt);
             OpenAIRequest groqRequest = new OpenAIRequest(
                     "llama-3.3-70b-versatile",
                     List.of(message),

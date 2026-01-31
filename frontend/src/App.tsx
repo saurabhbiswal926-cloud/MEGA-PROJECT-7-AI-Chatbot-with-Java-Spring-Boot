@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
+import KnowledgeBase from './pages/KnowledgeBase';
 import ChatWindow from './components/ChatWindow';
 import ThemeToggle from './components/ThemeToggle';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -198,6 +199,15 @@ const Dashboard = () => {
             </svg>
             <span>Analytics</span>
           </div>
+          <div
+            onClick={() => window.location.href = '/knowledge'}
+            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span>Knowledge Base</span>
+          </div>
           <ThemeToggle />
 
           <div className="flex items-center gap-3 px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer transition group border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
@@ -252,6 +262,11 @@ const App = () => {
             <Route path="/analytics" element={
               <ProtectedRoute>
                 <AnalyticsDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/knowledge" element={
+              <ProtectedRoute>
+                <KnowledgeBase />
               </ProtectedRoute>
             } />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
