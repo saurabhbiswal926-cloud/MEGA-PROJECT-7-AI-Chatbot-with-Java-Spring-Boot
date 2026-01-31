@@ -23,7 +23,7 @@ public class AttachmentController {
                     "url", url,
                     "type", file.getContentType(),
                     "name", file.getOriginalFilename()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("Error uploading file: " + e.getMessage());
         }
     }
