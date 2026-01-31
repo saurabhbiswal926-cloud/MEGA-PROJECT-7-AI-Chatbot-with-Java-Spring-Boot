@@ -37,4 +37,7 @@ public class Message {
 
     @Enumerated(EnumType.STRING)
     private MessageStatus status; // SENT, PROCESSING, RECEIVED, ERROR
+
+    private String attachmentUrl;
+    private String attachmentType; // e.g., image/png, application/pdf
 }

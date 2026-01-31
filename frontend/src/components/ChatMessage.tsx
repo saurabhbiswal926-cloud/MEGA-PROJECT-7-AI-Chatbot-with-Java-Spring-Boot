@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Check, Edit2 } from 'lucide-react';
+import { Copy, Check, Edit2, FileText } from 'lucide-react';
 
 interface MessageProps {
     sender: string;
@@ -9,10 +9,12 @@ interface MessageProps {
     isUser: boolean;
     timestamp?: string;
     status?: 'SENT' | 'PROCESSING' | 'RECEIVED' | 'ERROR';
+    attachmentUrl?: string;
+    attachmentType?: string;
     onEdit?: (content: string) => void;
 }
 
-const ChatMessage: React.FC<MessageProps> = ({ sender, content, isUser, timestamp, status, onEdit }) => {
+const ChatMessage: React.FC<MessageProps> = ({ sender, content, isUser, timestamp, status, attachmentUrl, attachmentType, onEdit }) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -68,6 +70,36 @@ const ChatMessage: React.FC<MessageProps> = ({ sender, content, isUser, timestam
                                 </ReactMarkdown>
                             )}
                         </div>
+
+                        {/* Attachments */}
+                        {attachmentUrl && (
+                            <div className={`mt-3 mb-2 max-w-sm rounded-lg overflow-hidden border ${isUser ? 'border-blue-400' : 'border-gray-200 dark:border-gray-700'}`}>
+                                {attachmentType?.startsWith('image/') ? (
+                                    <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" title="View full image">
+                                        <img src={attachmentUrl} alt="attachment" className="w-full h-auto object-cover max-h-60 hover:opacity-90 transition-opacity" />
+                                    </a>
+                                ) : (
+                                    <div className="flex items-center gap-3 p-3 bg-gray-50/50 dark:bg-gray-900/50">
+                                        <div className="p-2 rounded-lg bg-white dark:bg-gray-800 text-blue-500 shadow-sm">
+                                            <FileText size={20} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium truncate">Attachment</p>
+                                            <p className="text-[10px] opacity-50 uppercase">{attachmentType?.split('/')[1] || 'File'}</p>
+                                        </div>
+                                        <a
+                                            href={attachmentUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-blue-500 transition-colors"
+                                            title="Download file"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Timestamp & Status */}
                         <div className={`flex items-center gap-1.5 mt-1 ${isUser ? 'justify-end' : 'justify-start'}`}>

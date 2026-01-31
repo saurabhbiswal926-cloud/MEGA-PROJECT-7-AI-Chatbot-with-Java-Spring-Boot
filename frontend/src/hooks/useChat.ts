@@ -10,6 +10,8 @@ export interface ChatMessage {
     conversationId?: number;
     type: 'CHAT' | 'JOIN' | 'LEAVE' | 'CONVERSATION_UPDATE' | 'TYPING' | 'ERROR';
     status?: 'SENT' | 'PROCESSING' | 'RECEIVED' | 'ERROR';
+    attachmentUrl?: string;
+    attachmentType?: string;
 }
 
 export const useChat = (conversationId?: number, onConversationUpdate?: () => void) => {
@@ -29,7 +31,9 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
                         sender: m.sender ? m.sender.username : 'AI Assistant',
                         type: 'CHAT',
                         conversationId: conversationId,
-                        status: m.status || 'SENT'
+                        status: m.status || 'SENT',
+                        attachmentUrl: m.attachmentUrl,
+                        attachmentType: m.attachmentType
                     }));
                     setMessages(history);
                 })
@@ -75,7 +79,7 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
                         // Stop typing indicator when a message arrives
                         setIsTyping(false);
 
-                        if (receivedMessage.content) {
+                        if (receivedMessage.content || receivedMessage.attachmentUrl) {
                             setMessages((prev) => [...prev, receivedMessage]);
                         }
                     }
@@ -100,14 +104,16 @@ export const useChat = (conversationId?: number, onConversationUpdate?: () => vo
         };
     }, [username, conversationId, onConversationUpdate]);
 
-    const sendMessage = useCallback((content: string) => {
+    const sendMessage = useCallback((content: string, attachment?: { url: string, type: string }) => {
         if (stompClientRef.current && stompClientRef.current.connected && isConnected && username) {
             const chatMessage: ChatMessage = {
                 sender: username,
                 content: content,
                 conversationId: conversationId,
                 type: 'CHAT',
-                status: 'SENT'
+                status: 'SENT',
+                attachmentUrl: attachment?.url,
+                attachmentType: attachment?.type
             };
 
             // Add message locally for optimistic UI

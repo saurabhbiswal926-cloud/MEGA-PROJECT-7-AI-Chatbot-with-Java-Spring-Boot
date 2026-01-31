@@ -62,6 +62,8 @@ public class ChatService {
                                 .timestamp(LocalDateTime.now())
                                 .type(MessageType.USER)
                                 .status(MessageStatus.SENT)
+                                .attachmentUrl(chatMessage.getAttachmentUrl())
+                                .attachmentType(chatMessage.getAttachmentType())
                                 .build();
 
                 messageRepository.save(userMsg);
