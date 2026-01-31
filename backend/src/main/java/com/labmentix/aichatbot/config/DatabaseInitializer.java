@@ -18,6 +18,14 @@ public class DatabaseInitializer implements CommandLineRunner {
         try {
             log.info("Starting automated database initialization...");
 
+            // 0. Disable timeout for this session
+            try {
+                jdbcTemplate.execute("SET statement_timeout = 0");
+                log.info("✅ Statement timeout disabled for initialization session.");
+            } catch (Exception e) {
+                log.warn("Could not set statement timeout: {}", e.getMessage());
+            }
+
             // 1. Enable pgvector
             jdbcTemplate.execute("CREATE EXTENSION IF NOT EXISTS vector");
             log.info("✅ pgvector extension ensured.");
