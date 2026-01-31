@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/api/auth/**", "/ws/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/", "/health", "/api/auth/**", "/ws/**", "/h2-console/**").permitAll()
                         // All other /api/** endpoints require authentication
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
