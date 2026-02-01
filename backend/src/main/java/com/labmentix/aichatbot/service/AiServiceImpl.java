@@ -71,10 +71,14 @@ public class AiServiceImpl implements AiService {
 
             if (attachmentUrl != null && !attachmentUrl.isEmpty()) {
                 if (extractedText != null && !extractedText.isEmpty()) {
-                    // We have the actual PDF content!
-                    enhancedPrompt += "\n\n[DOCUMENT CONTENT FROM ATTACHED FILE]:\n" + extractedText
+                    // Limit text to 4000 chars for faster processing
+                    String limitedText = extractedText.length() > 4000
+                            ? extractedText.substring(0, 4000) + "...\n[Content truncated for performance]"
+                            : extractedText;
+
+                    enhancedPrompt += "\n\n[DOCUMENT CONTENT FROM ATTACHED FILE]:\n" + limitedText
                             + "\n[END OF DOCUMENT]\n\n";
-                    enhancedPrompt += "The above is the full text content extracted from the user's attached PDF file. Please analyze it based on the user's request.";
+                    enhancedPrompt += "The above is the text content extracted from the user's attached PDF file. Please analyze it based on the user's request.";
                 } else {
                     enhancedPrompt += "\n\n[SYSTEM NOTE: The user has attached a file at " + attachmentUrl
                             + ". The file content could not be extracted. Please acknowledge the attachment and ask the user to describe it or add it to the Knowledge Base for analysis.]";
