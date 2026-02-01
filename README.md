@@ -385,7 +385,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Saurabh Biswal**
 
-- GitHub: [@saurabhbiswal926-cloud](https://github.com/saurabhbiswal926-cloud)
+- GitHub: [@saurabhbiswal926-cloud](https://github.com/saurabhbiswal926-cloud) (https://github.com/SaurabhBiswal)
 - LinkedIn: [Saurabh Biswal](https://linkedin.com/in/saurabh-biswal)
 - Email: punpunsaurabh2002@gmail.com
 
