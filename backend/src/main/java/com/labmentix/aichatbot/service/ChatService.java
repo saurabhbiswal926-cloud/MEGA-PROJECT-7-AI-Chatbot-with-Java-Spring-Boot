@@ -98,7 +98,8 @@ public class ChatService {
                 messagingTemplate.convertAndSend("/topic/public", typingMsg);
 
                 // 3. Trigger AI Response
-                aiService.generateResponse(chatMessage.getContent())
+                aiService.generateResponse(chatMessage.getContent(), chatMessage.getAttachmentUrl(),
+                                chatMessage.getAttachmentType())
                                 .thenAccept(responseContent -> {
                                         // 4. Save AI Message
                                         Message aiMsg = Message.builder()

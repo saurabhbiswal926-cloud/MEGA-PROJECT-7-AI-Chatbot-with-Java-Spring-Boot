@@ -40,6 +40,12 @@ public class AiServiceImpl implements AiService {
     @Override
     @Async
     public CompletableFuture<String> generateResponse(String userMessage) {
+        return generateResponse(userMessage, null, null);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<String> generateResponse(String userMessage, String attachmentUrl, String attachmentType) {
         try {
             log.info("Searching context for message: {}", userMessage);
             String context = "";
@@ -54,6 +60,15 @@ public class AiServiceImpl implements AiService {
                 enhancedPrompt = "Use the following context to answer the user's question. If the answer is not in the context, use your general knowledge but mention that it's not in the documents.\n\n"
                         + "CONTEXT:\n" + context + "\n\n"
                         + "USER QUESTION: " + userMessage;
+            }
+
+            if (attachmentUrl != null && !attachmentUrl.isEmpty()) {
+                enhancedPrompt += "\n\n[SYSTEM NOTE: The user has attached a file at the following URL: "
+                        + attachmentUrl
+                        + ". If it is a PDF or image, you cannot read its content deeply unless it was parsed into the Context above. "
+                        + "However, you should acknowledge the file. If the user asks to analyze it, strictly reply: "
+                        + "'I can see you uploaded a file at " + attachmentUrl
+                        + ". To analyze its content, please ensure it is added to the Knowledge Base or describe it to me as I am currently a text-based model with limited direct file access.']";
             }
 
             log.info("Sending request to Groq with context attached");
